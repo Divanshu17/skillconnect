@@ -1,58 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class SideDrawer extends StatelessWidget {
+class SideDrawer extends StatefulWidget {
   const SideDrawer({super.key});
+
+  @override
+  _SideDrawerState createState() => _SideDrawerState();
+}
+
+class _SideDrawerState extends State<SideDrawer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-0.2, 0.0),
+      end: Offset.zero,
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.white,
-      child: Column(
-        children: [
-          UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundImage: NetworkImage('https://picsum.photos/200'),
-            ),
-            accountName: const Text('Alex Johnson'),
-            accountEmail: const Text('alex@example.com'),
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+                  ),
+                ),
+                child: Text(
+                  'SkillConnect',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: Text('Home', style: GoogleFonts.poppins()),
+                onTap: () {
+                  Navigator.pushNamed(context, '/main');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: Text('Profile', style: GoogleFonts.poppins()),
+                onTap: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: Text('Logout', style: GoogleFonts.poppins()),
+                onTap: () {
+                  // Implement logout logic
+                  Navigator.pushNamed(context, '/login');
+                },
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.category_outlined),
-            title: const Text('Categories'),
-            onTap: () {
-              Navigator.pop(context);
-              // Add categories screen later
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.favorite_outline),
-            title: const Text('Wishlist'),
-            onTap: () {
-              Navigator.pop(context);
-              // Add wishlist screen later
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/profile');
-            },
-          ),
-          const Spacer(),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

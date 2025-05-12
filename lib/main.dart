@@ -7,6 +7,7 @@ import 'screens/home_screen.dart';
 import 'screens/order_screen.dart';
 import 'screens/user_profile_screen.dart';
 import 'screens/product_detail_screen.dart';
+import 'screens/service_details_screen.dart'; // Import the new screen
 import 'widgets/custom_bottom_nav_bar.dart';
 import 'widgets/side_drawer.dart';
 import 'providers/user_provider.dart';
@@ -14,7 +15,15 @@ import 'providers/product_provider.dart';
 import 'utils/app_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -22,64 +31,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'SkillConnect',
-        theme: AppTheme.lightTheme,
-        initialRoute: '/',
-        onGenerateRoute: (settings) {
-          switch (settings.name) {
-            case '/':
-              return MaterialPageRoute(
-                builder: (context) => const SplashScreen(),
-              );
-            case '/login':
-              return MaterialPageRoute(
-                builder: (context) => LoginScreen(),
-              );
-            case '/signup':
-              return MaterialPageRoute(
-                builder: (context) => const SignupScreen(),
-              );
-            case '/main':
-              return MaterialPageRoute(
-                builder: (context) => const MainScreen(),
-              );
-            case '/profile':
-              return MaterialPageRoute(
-                builder: (context) => const UserProfileScreen(),
-              );
-            case '/product-detail':
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                builder: (context) => ServiceDetailsScreen(
-                  title: args['title'],
-                  provider: args['provider'],
-                  imageUrl: args['imageUrl'],
-                  price: args['price'],
-                  rating: args['rating'],
-                  location: args['location'],
-                  phone: args['phone'],
-                  experience: args['experience'],
-                  availability: args['availability'],
-                ),
-              );
-            default:
-              return MaterialPageRoute(
-                builder: (context) => const Scaffold(
-                  body: Center(
-                    child: Text('Route not found!'),
-                  ),
-                ),
-              );
-          }
-        },
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'SkillConnect',
+      theme: AppTheme.lightTheme,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/service-detail': (context) => const ServiceDetailsScreen(),
+      },
     );
   }
 }
